@@ -42,7 +42,9 @@ fetch.GAviews <- function(viz) {
       if(nrow(needToUpdate) > 0) {
         message("S3 file is out of date, updating from GA")
         new_GA_DF <- data.frame()
-        gar_auth_service(file.path(Sys.getenv("HOME"), ".vizlab/VIZLAB-a48f4107248c.json"))
+        gar_set_client(json = Sys.getenv('GA_CLIENTID_FILE'),
+                       scopes = "https://www.googleapis.com/auth/analytics.readonly")
+        gar_auth_service(json_file = Sys.getenv('GA_AUTH_FILE'))
         for(i in seq_len(nrow(needToUpdate))) {
           #NOTE: only want to pull full days, so don't pull today's data!
           #this way we can just append the new data without having overlap
