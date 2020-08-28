@@ -15,13 +15,13 @@ fetch.GAviews <- function(viz) {
 
   if(!viz[['useLocal']]) {
     print(sessionInfo())
-    #get file from sb with fetcher
-    message("Downloading from S3")
-    #use_credentials(profile = viz[['s3Profile']], file=aws.signature::default_credentials_file())
-
-    save_object(object = viz[['s3Path']], bucket = viz[['bucket']],
-                file = viz[['location']], region = 'us-west-2')
-    message('Downloaded S3 file')
+    # #get file from sb with fetcher
+    # message("Downloading from S3")
+    # #use_credentials(profile = viz[['s3Profile']], file=aws.signature::default_credentials_file())
+    #
+    # save_object(object = viz[['s3Path']], bucket = viz[['bucket']],
+    #             file = viz[['location']], region = 'us-west-2')
+    # message('Downloaded S3 file')
     fileDF <- readRDS(viz[['location']])
 
     if(viz[['update']]) {
@@ -65,10 +65,10 @@ fetch.GAviews <- function(viz) {
         assert_that(max(allDF$date) == (Sys.Date() - 1)) #note: is allDF$date char or date?
 
         saveRDS(allDF, file = viz[['location']])
-        message("Updating S3...")
-        put_object(file = viz[['location']], object = viz[['s3Path']],
-                   bucket = viz[['bucket']], region = 'us-west-2')
-        message("Done uploading")
+        # message("Updating S3...")
+        # put_object(file = viz[['location']], object = viz[['s3Path']],
+        #            bucket = viz[['bucket']], region = 'us-west-2')
+        # message("Done uploading")
       } else {
         message("S3 file is up to date, using that")
       }
