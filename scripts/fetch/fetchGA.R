@@ -17,7 +17,7 @@ fetch.GAviews <- function(viz) {
     print(sessionInfo())
     #get file from sb with fetcher
     message("Downloading from S3")
-    use_credentials(profile = viz[['s3Profile']], file=aws.signature::default_credentials_file())
+    #use_credentials(profile = viz[['s3Profile']], file=aws.signature::default_credentials_file())
 
     save_object(object = viz[['s3Path']], bucket = viz[['bucket']],
                 file = viz[['location']])
