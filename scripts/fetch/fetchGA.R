@@ -20,7 +20,7 @@ fetch.GAviews <- function(viz) {
     #use_credentials(profile = viz[['s3Profile']], file=aws.signature::default_credentials_file())
 
     save_object(object = viz[['s3Path']], bucket = viz[['bucket']],
-                file = viz[['location']])
+                file = viz[['location']], region = 'us-west-2')
     message('Downloaded S3 file')
     fileDF <- readRDS(viz[['location']])
 
@@ -67,7 +67,7 @@ fetch.GAviews <- function(viz) {
         saveRDS(allDF, file = viz[['location']])
         message("Updating S3...")
         put_object(file = viz[['location']], object = viz[['s3Path']],
-                   bucket = viz[['bucket']])
+                   bucket = viz[['bucket']], region = 'us-west-2')
         message("Done uploading")
       } else {
         message("S3 file is up to date, using that")
