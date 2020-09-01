@@ -5,7 +5,7 @@ pipeline {
         }
     }
     environment {
-     GA_AUTH_FILE = credentials('GOOGLE_ANALYTICS_SERVICE_JSON')   
+     GA_AUTH_FILE = credentials('GOOGLE_ANALYTICS_SERVICE_JSON')
      GA_CLIENTID_FILE = credentials('GOOGLE_ANALYTICS_CLIENTID_JSON')
     }
     parameters {
@@ -32,9 +32,9 @@ pipeline {
                           extensions: [],
                           gitTool: 'Default',
                           submoduleCfg: [],
-                          userRemoteConfigs: [[url: 'https://github.com/usgs-makerspace/analytics_pipeline']]
+                          userRemoteConfigs: [[url: 'https://github.com/USGS-VIZLAB/internal-analytics']]
                         ])
-        //sh 'aws s3 sync s3://wma-analytics-data/dashboard/${TIER}/cache/ cache/'
+        sh 'aws s3 cp s3://wma-analytics-data/vizlab-dashboard/current.rds cache/fetch/current.rds'
       }
     }
     stage('pull Google Analytics data') {
@@ -46,30 +46,40 @@ pipeline {
           alwaysPull true
           reuseNode true
           label 'team:makerspace'
-        } 
+        }
       }
       steps {
-        retry(2){
-          sh 'Rscript -e "library(vizlab); createProfile(directory='vizlab'); unpublish(); vizmake()"'
+        retry(1){
+          sh 'Rscript -e "library(vizlab); createProfile(directory=\'vizlab\'); vizmake()"'
         }
       }
     }
+    stage('Push to s3') {
+        steps {
+            sh '''
+                aws s3 cp cache/fetch/current.rds s3://wma-analytics-data/vizlab-dashboard/current.rds
+                aws s3 sync target/ s3://internal.wma.chs.usgs.gov/analytics/
+            '''
+
+        }
+    }
   }
-      post {
+post {
         unstable {
             mail to: 'mhines@usgs.gov, wwatkins@usgs.gov',
             subject: "${TIER} Unstable: ${currentBuild.fullDisplayName}",
-            body: "Pipeline is unstable ${env.BUILD_URL}"
+            body: "Analytics vizlab pipeline is unstable ${env.BUILD_URL}"
         }
         failure {
             mail to: 'mhines@usgs.gov, wwatkins@usgs.gov',
             subject: "${TIER} Failure: ${currentBuild.fullDisplayName}",
-            body: "Pipeline failed ${env.BUILD_URL}"
+            body: "Analytics vizlab pipeline ${env.BUILD_URL}"
         }
         changed {
             mail to: 'mhines@usgs.gov, wwatkins@usgs.gov',
             subject: "${TIER} Changes: ${currentBuild.fullDisplayName}",
-            body: "Pipeline detected changes ${env.BUILD_URL}"
+            body: "Analytics vizlab pipeline detected changes ${env.BUILD_URL}"
         }
-    } 
+    }
 }
+
